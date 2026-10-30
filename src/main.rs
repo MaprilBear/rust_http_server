@@ -1,9 +1,9 @@
 mod serializable;
 
+use crate::serializable::Serializable;
 use http::{Response, Version};
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
-use crate::serializable::Serializable;
 
 /// Generate an HTTP response ready to send to the client from a `Response` object
 fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8> {
