@@ -1,9 +1,36 @@
 mod serializable;
+use memchr::memmem;
 
 use crate::serializable::Serializable;
-use http::{Response, Version};
-use std::io::Write;
+use http::{Request, Response, Version};
+use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
+use std::time::Duration;
+
+fn split_bytes<'a>(data: &'a [u8], sep: &'a [u8]) -> impl Iterator<Item = &'a [u8]> {
+    let mut start = 0;
+    let mut matches = memmem::find_iter(data, sep);
+    let mut done = false;
+    std::iter::from_fn(move || {
+        if done { return None; }
+        match matches.next() {
+            Some(pos) => {
+                let piece = &data[start..pos];
+                start = pos + sep.len();
+                Some(piece)
+            }
+            None => {
+                done = true;
+                Some(&data[start..])
+            }
+        }
+    })
+}
+
+fn parse_http_request(request_data: &[u8]) -> Request<&[u8]>
+{
+    let parts: Vec<&[u8]> = split_bytes(request_data, b"\n\r");
+}
 
 /// Generate an HTTP response ready to send to the client from a `Response` object
 fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8> {
@@ -41,7 +68,12 @@ fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8> {
 }
 
 fn handle_client(mut stream: TcpStream) {
-    stream.set_nonblocking(false).unwrap();
+    stream.set_read_timeout(Some(Duration::from_millis(100))).expect("Failed to set read timeout");
+    // Grab the request data
+    let mut request_buffer: Vec<u8> = Vec::new();
+    let _ = stream.read_to_end(&mut request_buffer);
+    println!("Request: {}", str::from_utf8(&request_buffer).unwrap());
+
     let body: String = "<html><body>hi!</body></html>".to_string();
     let response = Response::builder()
         .header("Context-Type", "text/html")
