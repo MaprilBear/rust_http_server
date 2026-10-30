@@ -1,32 +1,58 @@
+mod serializable;
+
 use http::{Response, Version};
 use std::io::Write;
 use std::net::{TcpListener, TcpStream};
+use crate::serializable::Serializable;
+
+/// Generate an HTTP response ready to send to the client from a `Response` object
+fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8> {
+    let mut buffer: Vec<u8> = Vec::with_capacity(256);
+
+    // Preamble -> HTTP/1.0 200 OK
+    let version = match response.version() {
+        Version::HTTP_09 => "HTTP/0.9",
+        Version::HTTP_10 => "HTTP/1.0",
+        Version::HTTP_11 => "HTTP/1.1",
+        Version::HTTP_2 => "HTTP/2",
+        Version::HTTP_3 => "HTTP/3",
+        _ => "HTTP/1.0",
+    };
+    let status = response.status();
+    let status_code = status.as_str();
+    let reason = status.canonical_reason().unwrap_or("Unknown");
+    write!(buffer, "{version} {status_code} {reason}\r\n").expect("Failed to generate preamble");
+
+    // Headers -> Content-Type: text/plain
+    //            Content-Length: 999
+    //            etc...
+    for (k, v) in response.headers() {
+        buffer.extend_from_slice(k.as_str().as_bytes());
+        buffer.extend_from_slice(b": ");
+        buffer.extend_from_slice(v.as_bytes());
+        buffer.extend_from_slice(b"\r\n");
+    }
+    buffer.extend_from_slice(b"\r\n");
+
+    // Body
+    buffer.extend(response.body().serialize());
+
+    buffer
+}
 
 fn handle_client(mut stream: TcpStream) {
     stream.set_nonblocking(false).unwrap();
-    let body = "<html><body>hi!</body></html>";
+    let body: String = "<html><body>hi!</body></html>".to_string();
     let response = Response::builder()
         .header("Context-Type", "text/html")
-        .header("Content-Length", body.len().to_string())
+        .header("Content-Length", body.as_bytes().len())
         .status(200)
         .version(Version::HTTP_11)
-        .body("<html><body>hi!</body></html>")
+        .body(body)
         .unwrap();
-    let version_string = match response.version() {
-        Version::HTTP_10 => "HTTP/1.0",
-        _ => "HTTP/1.1",
-    };
-
-    stream
-        .write(format!("{} {} {}\r\n", version_string, response.status().as_str(), "OK").as_bytes())
-        .unwrap();
-    for header in response.headers() {
-        stream.write(format!("{}: {}\r\n", header.0.as_str(), header.1.to_str().unwrap()).as_bytes()).unwrap();
-    }
-    stream.write(b"\r\n").unwrap();
-    stream.write(body.as_bytes()).unwrap();
-    stream.write(b"\r\n").unwrap();
-    stream.flush().unwrap();
+    let response_text = generate_http_response(response);
+    stream.write(response_text.as_slice()).unwrap();
+    stream.flush().unwrap()
 }
 
 fn main() {
