@@ -6,3 +6,5 @@ edition = "2024"
 [dependencies]
 inventory = "0.3"
 router_macros = { path = "router_macros" }
+router_shared = { path = "router_shared" }
+http = "1.5.0"

@@ -7,8 +7,8 @@ edition = "2024"
 quote = "1.0.47"
 syn = { version = "3.0.9", features = ["full", "extra-traits"] }
 proc-macro2 = "1.0.107"
-strum = "0.28"
-strum_macros = "0.28.0"
+http = "1.5.0"
+router_shared = { path = "../router_shared" }
 
 [lib]
 proc-macro = true

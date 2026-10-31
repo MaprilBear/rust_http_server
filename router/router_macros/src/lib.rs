@@ -1,7 +1,6 @@
 use proc_macro::TokenStream;
 use quote::quote;
 use std::str::FromStr;
-use strum_macros::{AsRefStr, EnumString};
 use syn::parse::{Parse, ParseStream};
 use syn::punctuated::Punctuated;
 use syn::spanned::Spanned;
@@ -9,12 +8,6 @@ use syn::{
     FnArg, Ident, ItemFn, LitStr, ReturnType, Signature, Token, Type, parse_macro_input,
     parse_quote,
 };
-
-#[derive(Default, Debug)]
-struct RouteArgs {
-    uri: String,
-    method: HttpMethod,
-}
 
 struct KeyValue {
     key: Ident,
@@ -29,21 +22,10 @@ impl Parse for KeyValue {
     }
 }
 
-#[derive(Debug, PartialEq, EnumString, AsRefStr, Default)]
-enum HttpMethod {
-    GET,
-    POST,
-    PUT,
-    DELETE,
-    HEAD,
-    OPTIONS,
-    TRACE,
-    PATCH,
-    CONNECT,
-    QUERY,
-
-    #[default]
-    ANY,
+#[derive(Default, Debug)]
+struct RouteArgs {
+    uri: String,
+    method: router_shared::HttpMethod,
 }
 
 impl Parse for RouteArgs {
@@ -54,7 +36,7 @@ impl Parse for RouteArgs {
         for kv in pairs {
             match kv.key.to_string().as_str() {
                 "uri" => route_args.uri = kv.value.value(),
-                "method" => match HttpMethod::from_str(kv.value.value().as_str()) {
+                "method" => match router_shared::HttpMethod::from_str(kv.value.value().as_str()) {
                     Ok(method) => {
                         route_args.method = method;
                     }
@@ -98,18 +80,16 @@ pub fn route(attr: TokenStream, item: TokenStream) -> TokenStream {
         return e.into_compile_error().into();
     }
 
-    let name = func.sig.ident.to_string();
+    let ident = &func.sig.ident;
     let uri = macro_args.uri;
-    let method = macro_args.method.as_ref();
-
-    eprintln!("{name} {uri} {method}");
+    let method = macro_args.method;
 
     quote! {
         #func
 
         ::router::inventory::submit! {
             ::router::RegisteredRoute {
-                name: #name,
+                handler: #ident,
                 uri: #uri,
                 method: #method,
             }

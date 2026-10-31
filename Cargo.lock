@@ -67,19 +67,32 @@ dependencies = [
 name = "router"
 version = "0.1.0"
 dependencies = [
+ "http",
  "inventory",
  "router_macros",
+ "router_shared",
 ]
 
 [[package]]
 name = "router_macros"
 version = "0.1.0"
 dependencies = [
+ "http",
+ "proc-macro2",
+ "quote",
+ "router_shared",
+ "syn 3.0.9",
+]
+
+[[package]]
+name = "router_shared"
+version = "0.1.0"
+dependencies = [
+ "http",
  "proc-macro2",
  "quote",
  "strum",
  "strum_macros",
- "syn 3.0.9",
 ]
 
 [[package]]

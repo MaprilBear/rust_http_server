@@ -3,10 +3,26 @@
 version = 4
 
 [[package]]
+name = "bytes"
+version = "1.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc652a48c352aef3ea3aed32080501cf3ef6ed5da78602a020c991775b0aff04"
+
+[[package]]
 name = "heck"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
+
+[[package]]
+name = "http"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "918d3568bebf352712bc2ef3d46a8bcf1a75b373be6539de198e9105cbbf9ce0"
+dependencies = [
+ "bytes",
+ "itoa",
+]
 
 [[package]]
 name = "inventory"
@@ -16,6 +32,12 @@ checksum = "6928282826c822ad91bf1c9a1cb90a30ba1c26770749929b4656cd6be829cd7c"
 dependencies = [
  "rustversion",
 ]
+
+[[package]]
+name = "itoa"
+version = "1.0.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f42a60cbdf9a97f5d2305f08a87dc4e09308d1276d28c869c684d7777685682"
 
 [[package]]
 name = "proc-macro2"
@@ -39,19 +61,32 @@ dependencies = [
 name = "router"
 version = "0.1.0"
 dependencies = [
+ "http",
  "inventory",
  "router_macros",
+ "router_shared",
 ]
 
 [[package]]
 name = "router_macros"
 version = "0.1.0"
 dependencies = [
+ "http",
+ "proc-macro2",
+ "quote",
+ "router_shared",
+ "syn 3.0.9",
+]
+
+[[package]]
+name = "router_shared"
+version = "0.1.0"
+dependencies = [
+ "http",
  "proc-macro2",
  "quote",
  "strum",
  "strum_macros",
- "syn 3.0.9",
 ]
 
 [[package]]
