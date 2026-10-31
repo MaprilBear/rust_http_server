@@ -1,4 +1,3 @@
-use crate::serializable::Serializable;
 use crate::slice_utils::{split_bytes, split_bytes_once};
 use http::{Request, Response, Version};
 use std::io::Write;
@@ -36,7 +35,7 @@ pub fn parse_http_request(request_data: &[u8]) -> Request<&[u8]> {
 }
 
 /// Generate an HTTP response ready to send to the client from a `Response` object
-pub fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8> {
+pub fn generate_http_response(response: Response<Vec<u8>>) -> Vec<u8> {
     let mut buffer: Vec<u8> = Vec::with_capacity(256);
 
     // Preamble -> HTTP/1.0 200 OK
@@ -65,7 +64,7 @@ pub fn generate_http_response<T: Serializable>(response: Response<T>) -> Vec<u8>
     buffer.extend_from_slice(b"\r\n");
 
     // Body
-    buffer.extend(response.body().serialize());
+    buffer.extend(response.body());
 
     buffer
 }

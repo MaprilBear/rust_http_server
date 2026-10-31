@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Server Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 450px;
+            width: 100%;
+        }
+        .status-icon {
+            font-size: 48px;
+            color: #2ec4b6;
+            margin-bottom: 16px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 10px 0;
+            color: #0f172a;
+        }
+        p {
+            font-size: 15px;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 0 0 24px 0;
+        }
+        .details {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #334155;
+            text-align: left;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="status-icon">✓</div>
+    <h1>Server is Operational</h1>
+    <p>If you can see this page, your web server is online, properly configured, and successfully serving static HTML files.</p>
+
+    <div class="details">
+        <strong>HTTP Status:</strong> 200 OK<br>
+        <strong>Requested URL:</strong> <script>document.write(window.location.href);</script><br>
+        <strong>Local Time:</strong> <script>document.write(new Date().toLocaleString());</script>
+    </div>
+</div>
+
+</body>
+</html>

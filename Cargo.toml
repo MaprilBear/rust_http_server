@@ -7,3 +7,5 @@ edition = "2024"
 http = "1.5.0"
 memchr = "2.8.3"
 router = { path = "router" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

@@ -1,40 +1,54 @@
 mod http_utils;
-mod serializable;
 mod slice_utils;
 
-use crate::http_utils::{ContentType, generate_http_response, parse_http_request};
-use http::{Request, Response, Version};
+use crate::http_utils::{generate_http_response, parse_http_request};
+use http::{Request, Response};
 use router::{route, route_request};
+use serde::Serialize;
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
 
-#[route]
+#[route(uri = "/", method = "GET")]
 fn foo(request: Request<&[u8]>) -> Response<Vec<u8>> {
-    let content_type = match request.headers().get("Content-Type") {
-        Some(content_type) => match content_type.to_str().unwrap_or("") {
-            "text/plain" => ContentType::PlainText,
-            "application/json" => ContentType::Json,
-            "application/octet-stream" => ContentType::Binary,
-            _ => ContentType::Binary,
-        },
-        None => ContentType::Binary,
-    };
+    // let content_type = match request.headers().get("Content-Type") {
+    //     Some(content_type) => match content_type.to_str().unwrap_or("") {
+    //         "text/plain" => ContentType::PlainText,
+    //         "application/json" => ContentType::Json,
+    //         "application/octet-stream" => ContentType::Binary,
+    //         _ => ContentType::Binary,
+    //     },
+    //     None => ContentType::Binary,
+    // };
 
-    let content = if let ContentType::PlainText = content_type {
-        str::from_utf8(request.body()).unwrap().trim_end_matches('\0')
-    } else {
-        "uh oh!"
-    };
-
-    let body: Vec<u8> = format!("<html><body>{}</body></html>", content).into_bytes();
+    let index_html = std::fs::read_to_string("resources/index.html").unwrap();
+    let output = index_html.into_bytes();
     Response::builder()
         .header("Context-Type", "text/html")
-        .header("Content-Length", body.len())
-        .status(200)
-        .version(Version::HTTP_11)
-        .body(body)
+        .header("Content-Length", output.len())
+        .body(output)
         .unwrap()
+}
+
+#[derive(Serialize)]
+struct User {
+    username: String,
+    email: String,
+    id: u64,
+}
+
+#[route(uri = "/user", method = "GET")]
+fn get_user(request: Request<&[u8]>) -> Response<Vec<u8>> {
+    let user = User { username: "bob".into(), email: "bob@gmail.com".into(), id: 1 };
+    let user_json = serde_json::to_string(&user).unwrap_or_else(|e| {
+        eprintln!("Serialization failed: {}", e);
+        String::new()
+    });
+
+    Response::builder()
+        .header("Context-Type", "application/json")
+        .header("Content-Length", user_json.len())
+        .body(user_json.into_bytes()).unwrap()
 }
 
 fn handle_client(mut stream: TcpStream) {
