@@ -10,7 +10,7 @@ use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
 
-#[route(foo)]
+#[route]
 fn foo(request: Request<&[u8]>) -> Response<Vec<u8>> {
     Response::builder().body(Vec::new()).unwrap()
 }

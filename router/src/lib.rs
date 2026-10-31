@@ -4,6 +4,7 @@ pub use router_macros::route;
 pub struct RegisteredRoute {
     pub name: &'static str,
     pub uri: &'static str,
+    pub method: &'static str,
 }
 
 inventory::collect!(RegisteredRoute);

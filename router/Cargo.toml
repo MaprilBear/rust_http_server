@@ -5,4 +5,4 @@ edition = "2024"
 
 [dependencies]
 inventory = "0.3"
-router_macros = { path = "../router_macros" }
+router_macros = { path = "router_macros" }
