@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 http = "1.5.0"
 memchr = "2.8.3"
+router = { path = "router" }

@@ -2,11 +2,18 @@ mod http_utils;
 mod serializable;
 mod slice_utils;
 
+use router::route;
+
 use crate::http_utils::{ContentType, generate_http_response, parse_http_request};
-use http::{Response, Version};
+use http::{Request, Response, Version};
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
+
+#[route(foo)]
+fn foo(request: Request<&[u8]>) -> Response<Vec<u8>> {
+    Response::builder().body(Vec::new()).unwrap()
+}
 
 fn handle_client(mut stream: TcpStream) {
     stream.set_read_timeout(Some(Duration::from_millis(100))).expect("Failed to set read timeout");
