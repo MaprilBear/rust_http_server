@@ -2,10 +2,9 @@ mod http_utils;
 mod serializable;
 mod slice_utils;
 
-use router::{route, route_request};
-
 use crate::http_utils::{ContentType, generate_http_response, parse_http_request};
 use http::{Request, Response, Version};
+use router::{route, route_request};
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::time::Duration;
